@@ -65,7 +65,7 @@ RUN npm --version
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-EXPOSE 8899 8900 8000-8009
+EXPOSE 8899 8900 5173 8000-8009
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["tail", "-f", "/dev/null"]

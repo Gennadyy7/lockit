@@ -1,21 +1,6 @@
-mkdir -p /app/programs/lockit /app/app
-cd /app/programs/lockit
-anchor init lockit --no-git
-cd /app/app
-yarn create vite . -- --template react-ts
-# No, Yes..., Ctrl + C
-
-yarn add @solana/web3.js @solana/wallet-adapter-react @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets @solana/wallet-adapter-base lucide-react
-
-yarn add -D tailwindcss postcss autoprefixer
-
-npx tailwindcss init -p # часто не работает
-
-
-#Вставить данный код в /app/programs/lockit/lockit/programs/lockit/src/lib.rs
 use anchor_lang::prelude::*;
 
-declare_id!("11111111111111111111111111111111");
+declare_id!("CpigxAirimCC6o21ZnwQPfPQAXg8sXgyAaxtmV9Lc3wg");
 
 pub const VAULT_SEED: &[u8] = b"vault";
 
@@ -148,24 +133,3 @@ pub enum LockItError {
     #[msg("Math overflow")]
     MathOverflow,
 }
-
-anchor build
-
-#неправда
-cat /app/programs/lockit/lockit/target/deploy/lockit-keypair.json | base58
-
-#надо так
-anchor keys list
-
-cd /app/programs/lockit/lockit/programs/lockit
-
-sed -i "s/11111111111111111111111111111111/84oy94Qx4xqPoPZCEnho7sVYMsAjhGeGWKWuoF7drGACxVGEDmsNozz9gprPgSMKpbd7RhXNE1xEsiyKKQQ47nTNb/g" src/lib.rs
-
-cd src
-
-# в каталоге /app/programs/lockit/lockit/programs/lockit/src сделать
-anchor build
-
-cd /app/app
-
-yarn dev --host 0.0.0.0 --port 5173
