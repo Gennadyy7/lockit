@@ -8,10 +8,6 @@ services:
       - "8000-8009:8000-8009"
     networks:
       - solana-network
-    ulimits:
-      nofile:
-        soft: 1000000
-        hard: 1000000
 
   solana-cli:
     build:
