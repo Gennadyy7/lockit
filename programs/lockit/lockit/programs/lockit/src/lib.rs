@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("CpigxAirimCC6o21ZnwQPfPQAXg8sXgyAaxtmV9Lc3wg");
+declare_id!("CB81GRLWi7AjR6KDFawvbzfH3xQkCQh5YZznA7XzS7q6");
 
 pub const VAULT_SEED: &[u8] = b"vault";
 
@@ -8,15 +8,15 @@ pub const VAULT_SEED: &[u8] = b"vault";
 pub mod lockit {
     use super::*;
 
-    pub fn create_vault(ctx: Context<CreateVault>, unlock_days: u64) -> Result<()> {
-        require!(unlock_days >= 1 && unlock_days <= 365, LockItError::InvalidDays);
+    pub fn create_vault(ctx: Context<CreateVault>, unlock_hours: u64) -> Result<()> {
+        require!(unlock_hours >= 1 && unlock_hours <= 8760, LockItError::InvalidHours);
 
         let vault = &mut ctx.accounts.vault;
         let clock = Clock::get()?;
 
         vault.owner = ctx.accounts.user.key();
         vault.balance = 0;
-        vault.unlock_time = clock.unix_timestamp + (unlock_days as i64) * 86_400;
+        vault.unlock_time = clock.unix_timestamp + (unlock_hours as i64) * 3_600;
         vault.bump = ctx.bumps.vault;
 
         Ok(())
@@ -26,7 +26,6 @@ pub mod lockit {
         require_gt!(amount, 0, LockItError::ZeroAmount);
         require_keys_eq!(ctx.accounts.user.key(), ctx.accounts.vault.owner, LockItError::NotOwner);
 
-        // Делаем трансфер ПЕРЕД тем, как взять vault мутабельно для обновления balance
         anchor_lang::system_program::transfer(
             CpiContext::new(
                 ctx.accounts.system_program.to_account_info(),
@@ -38,7 +37,6 @@ pub mod lockit {
             amount,
         )?;
 
-        // Теперь безопасно обновляем balance
         let vault = &mut ctx.accounts.vault;
         vault.balance = vault.balance
             .checked_add(amount)
@@ -55,16 +53,8 @@ pub mod lockit {
 
         let amount = ctx.accounts.vault.balance;
 
-        // Переводим лампорты напрямую
-        let vault_info = ctx.accounts.vault.to_account_info();
-        let user_info = ctx.accounts.user.to_account_info();
-
-        **vault_info.try_borrow_mut_lamports()? -= amount;
-        **user_info.try_borrow_mut_lamports()? += amount;
-
-        // Обнуляем баланс
-        let vault = &mut ctx.accounts.vault;
-        vault.balance = 0;
+        **ctx.accounts.vault.to_account_info().try_borrow_mut_lamports()? -= amount;
+        **ctx.accounts.user.to_account_info().try_borrow_mut_lamports()? += amount;
 
         Ok(())
     }
@@ -103,7 +93,8 @@ pub struct Withdraw<'info> {
     #[account(
         mut,
         seeds = [VAULT_SEED, user.key().as_ref()],
-        bump = vault.bump
+        bump = vault.bump,
+        close = user
     )]
     pub vault: Account<'info, Vault>,
     #[account(mut)]
@@ -120,8 +111,8 @@ pub struct Vault {
 
 #[error_code]
 pub enum LockItError {
-    #[msg("Unlock period must be 1–365 days")]
-    InvalidDays,
+    #[msg("Unlock period must be 1–8760 hours")]
+    InvalidHours,
     #[msg("Amount must be > 0")]
     ZeroAmount,
     #[msg("Not the vault owner")]
