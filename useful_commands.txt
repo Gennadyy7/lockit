@@ -221,17 +221,18 @@ yarn test
 
 
 # Секция команд и комментариев 2. Все, что касается фронтенда (не изменялось с момента первой попытки)
-mkdir -p /app/app
-cd /app/app
-yarn create vite . -- --template react-ts
+# Вход в нужный каталог для проекта фронта, где нужно находится в терминале, пока работаешь с фронтом
+cd /app/programs/lockit/lockit
+mkdir -p app
+cd app
+
+# Запуск шабона проекта, насколько я понял - генерируется автоматически много кода, каркас проекта
+npm create vite@latest . -- --template react-ts
 # No, Yes..., Ctrl + C
 
-yarn add @solana/web3.js @solana/wallet-adapter-react @solana/wallet-adapter-react-ui @solana/wallet-adapter-wallets @solana/wallet-adapter-base lucide-react
+# все нужные зависимости
+npm install # может, эта команда не нужна. если не нужна, то удали из инструкции
+npm install @solana/web3.js @coral-xyz/anchor @solana/wallet-adapter-react @solana/wallet-adapter-phantom @solana/wallet-adapter-base
+npm install @solana/wallet-adapter-react-ui
 
-yarn add -D tailwindcss postcss autoprefixer
-
-npx tailwindcss init -p # часто не работает
-
-cd /app/app
-
-yarn dev --host 0.0.0.0 --port 5173
+# далее не знаю
