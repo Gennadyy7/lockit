@@ -53,14 +53,8 @@ pub mod lockit {
 
         let amount = ctx.accounts.vault.balance;
 
-        let vault_info = ctx.accounts.vault.to_account_info();
-        let user_info = ctx.accounts.user.to_account_info();
-
-        **vault_info.try_borrow_mut_lamports()? -= amount;
-        **user_info.try_borrow_mut_lamports()? += amount;
-
-        let vault = &mut ctx.accounts.vault;
-        vault.balance = 0;
+        **ctx.accounts.vault.to_account_info().try_borrow_mut_lamports()? -= amount;
+        **ctx.accounts.user.to_account_info().try_borrow_mut_lamports()? += amount;
 
         Ok(())
     }
@@ -99,7 +93,8 @@ pub struct Withdraw<'info> {
     #[account(
         mut,
         seeds = [VAULT_SEED, user.key().as_ref()],
-        bump = vault.bump
+        bump = vault.bump,
+        close = user
     )]
     pub vault: Account<'info, Vault>,
     #[account(mut)]
