@@ -8,15 +8,15 @@ pub const VAULT_SEED: &[u8] = b"vault";
 pub mod lockit {
     use super::*;
 
-    pub fn create_vault(ctx: Context<CreateVault>, unlock_days: u64) -> Result<()> {
-        require!(unlock_days >= 1 && unlock_days <= 365, LockItError::InvalidDays);
+    pub fn create_vault(ctx: Context<CreateVault>, unlock_hours: u64) -> Result<()> {
+        require!(unlock_hours >= 1 && unlock_hours <= 8760, LockItError::InvalidHours);
 
         let vault = &mut ctx.accounts.vault;
         let clock = Clock::get()?;
 
         vault.owner = ctx.accounts.user.key();
         vault.balance = 0;
-        vault.unlock_time = clock.unix_timestamp + (unlock_days as i64) * 86_400;
+        vault.unlock_time = clock.unix_timestamp + (unlock_hours as i64) * 3_600;
         vault.bump = ctx.bumps.vault;
 
         Ok(())
@@ -116,8 +116,8 @@ pub struct Vault {
 
 #[error_code]
 pub enum LockItError {
-    #[msg("Unlock period must be 1–365 days")]
-    InvalidDays,
+    #[msg("Unlock period must be 1–8760 hours")]
+    InvalidHours,
     #[msg("Amount must be > 0")]
     ZeroAmount,
     #[msg("Not the vault owner")]

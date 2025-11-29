@@ -12,7 +12,7 @@ lockit = "CB81GRLWi7AjR6KDFawvbzfH3xQkCQh5YZznA7XzS7q6"
 lockit = "CB81GRLWi7AjR6KDFawvbzfH3xQkCQh5YZznA7XzS7q6"
 
 [provider]
-cluster = "localnet"  # должен быть devnet
+cluster = "devnet"  # должен быть devnet
 wallet = "/app/id.json"
 
 [scripts]
